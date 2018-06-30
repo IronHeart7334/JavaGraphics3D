@@ -2,6 +2,7 @@ package boxTest;
 
 import javafx.scene.Group;
 import javafx.scene.transform.*;
+import static java.lang.System.out;
 
 public class EasyGroup extends Group{
     private Translate t;
@@ -38,7 +39,6 @@ public class EasyGroup extends Group{
         t.setZ(x);
     }
     
-    //TODO: make these increment instead
     public void tX(int x){
         t.setX(t.getX() + x);
     }
@@ -77,5 +77,9 @@ public class EasyGroup extends Group{
         ip.setX(-x);
         ip.setY(-y);
         ip.setZ(-z);
+    }
+    public void logData(){
+    	out.println(t.getX() + ", " + t.getY() + ", " + t.getZ());
+    	out.println(r[0].getAngle() + ", " + r[1].getAngle() + ", " + r[2].getAngle());
     }
 }
