@@ -4,10 +4,13 @@ import javafx.application.Application;
 import javafx.scene.*;
 import javafx.scene.Scene;
 import javafx.scene.paint.*;
-import javafx.scene.shape.Box;
+import javafx.scene.shape.*;
 import javafx.stage.Stage;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
+
+import utilities.EasyGroup;
+import utilities.Positioner;
 
 public class Main extends Application {
     private Group root;
@@ -43,6 +46,7 @@ public class Main extends Application {
         launch(args);
     }
     
+    //need to make two camera EasyGroups to fix up/down panning
     private void buildCamera(){
         camera = new PerspectiveCamera(true);
         camera.setNearClip(1);
@@ -97,6 +101,78 @@ public class Main extends Application {
     	PhongMaterial wood = new PhongMaterial();
     	wood.setDiffuseColor(Color.SADDLEBROWN);
     	
+    	
+    	
+    	//planks
+    	Box[] planks = new Box[24];
+    	int ps = 100; //plank size
+    	int s = ps / 10;
+    	int m = ps / 4 - 2;
+    	int l = ps;
+    	
+    	//more efficient way?
+    	for(int i = 0; i < 24; i++){
+    		switch(i / 4){
+    		case 0:
+    			//floor
+    			planks[i] = new Box(l, s, m);//24 so there's a gap
+        		Positioner.repos(planks[i], 0, 50, (int)(-37.5 + 25 * i));
+        		break;
+    		case 1:
+    			//roof
+    			planks[i] = new Box(m, s, l);
+    			Positioner.repos(planks[i], (int)(-37.5 + 25 * (i - 4)), -50, 0);
+        		break;
+    		case 2:
+    			//left
+    			planks[i] = new Box(s, m, l);
+    			Positioner.repos(planks[i], -50, (int)(-37.5 + 25 * (i - 8)), 0);
+        		break;
+    		case 3:
+    			//right
+    			planks[i] = new Box(s, l, m);
+    			Positioner.repos(planks[i], 50, 0, (int)(-37.5 + 25 * (i - 12)));
+        		break;
+    		case 4:
+    			//back
+    			planks[i] = new Box(l, m, s);
+    			Positioner.repos(planks[i], 0, (int)(-37.5 + 25 * (i - 16)), 50);
+        		break;
+    		case 5:
+    			//front
+    			planks[i] = new Box(m, l, s);
+    			Positioner.repos(planks[i], (int)(-37.5 + 25 * (i - 20)), 0, -50);
+        		break;
+    		}
+    		planks[i].setMaterial(wood);
+    		g.getChildren().add(planks[i]);
+    	}
+    	
+
+    	
+    	
+    	
+    	
+    	//edges yay it works
+    	Box[] edges = new Box[12];
+    	for(int i = 0; i < 12; i++){
+    		edges[i] = new Box(
+    				(i < 4) ? 100 : 10, 
+    				(i >= 4 && i < 8) ? 100 : 10, 
+    				(i >= 8) ? 100 : 10
+    						);
+    		edges[i].setMaterial(metal);
+    		// first check: should have shift of 0 for any dimension with length 100
+    		Positioner.repos(edges[i], 
+    				(i < 4) ?           0 : (i == 4 || i == 5 || i == 8 || i == 9) ? 51 : -51, 
+    				(i >= 4 && i < 8) ? 0 : (i == 0 || i == 1 || i == 8 || i == 10) ? 51 : -51, 
+    				(i >= 8) ?          0 : (i == 0 || i == 2 || i == 4 || i == 6) ? 51 : -51
+    				);
+    		g.getChildren().add(edges[i]);
+    	}
+    	
+    	
+    	
     	// corners
     	Box[] corners = new Box[8];
     	for(int i = 0; i < 8; i++){
@@ -104,123 +180,16 @@ public class Main extends Application {
     		corners[i].setMaterial(metal);
     		g.getChildren().add(corners[i]);
     	}
+    	int cs = 50; //corner spacing
     	
-    	// x coord
-    	// 0, 1, 2, 3
-    	for(int i = 0; i < 4; i++){
-    		corners[i].setTranslateX(50);
+    	for(int i = 0; i < 8; i++){
+    		Positioner.repos(
+    				corners[i], 
+    				(i < 4) ? cs : -cs, 
+    				(i >= 2 && i <= 5) ? cs : -cs, 
+    				(i % 2 == 0) ? cs : -cs 
+    				);
     	}
-    	// 4, 5, 6, 7
-    	for(int i = 4; i < 8; i++){
-    		corners[i].setTranslateX(-50);
-    	}
-    	
-    	// y coord
-    	// 0, 1, 6, 7
-    	corners[0].setTranslateY(-50);
-    	corners[1].setTranslateY(-50);
-    	corners[6].setTranslateY(-50);
-    	corners[7].setTranslateY(-50);
-    	
-    	// 2, 3, 4, 5
-    	for(int i = 2; i <= 5; i++){
-    		corners[i].setTranslateY(50);
-    	}
-    	
-    	// z coord
-    	for(int i = 0; i < 8; i+=2){
-    		corners[i].setTranslateZ(50);
-    	}
-    	for(int i = 1; i < 8; i+=2){
-    		corners[i].setTranslateZ(-50);
-    	}
-    	
-    	
-    	
-    	//edges wrong
-    	Box[] edges = new Box[12];
-    	for(int i = 0; i < 4; i++){
-    		edges[i] = new Box(100, 10, 10);
-    		edges[i].setMaterial(metal);
-    		edges[i].setTranslateX(-50);
-    		edges[i].setTranslateY(50 * Math.pow(-1, i));
-    		edges[i].setTranslateZ(50 * Math.pow(-1, i + 1));
-    		
-    		g.getChildren().add(edges[i]);
-    	}
-    	for(int i = 4; i < 8; i++){
-    		edges[i] = new Box(10, 100, 10);
-    		edges[i].setMaterial(metal);
-    		edges[i].setTranslateX(50 * Math.pow(-1, i));
-    		edges[i].setTranslateY(-50);
-    		edges[i].setTranslateZ(50 * Math.pow(-1, i + 1));
-    		
-    		g.getChildren().add(edges[i]);
-    	}
-    	for(int i = 8; i < 12; i++){
-    		edges[i] = new Box(10, 10, 100);
-    		edges[i].setMaterial(metal);
-    		edges[i].setTranslateX(50 * Math.pow(-1, i));
-    		edges[i].setTranslateY(50 * Math.pow(-1, i + 1));
-    		edges[i].setTranslateZ(-50);
-    		
-    		g.getChildren().add(edges[i]);
-    	}
-    	
-    	
-    	
-    	//planks
-    	Box[] planks = new Box[24];
-    	
-    	//floor
-    	for(int i = 0; i < 4; i++){
-    		planks[i] = new Box(100, 10, 24);//24 so there's a gap
-    		planks[i].setMaterial(wood);
-    		planks[i].setTranslateY(50);
-    		planks[i].setTranslateZ(-37.5 + 25 * i);
-    		g.getChildren().add(planks[i]);
-    	}
-    	//roof
-    	for(int i = 4; i < 8; i++){
-    		planks[i] = new Box(24, 10, 100);
-    		planks[i].setMaterial(wood);
-    		planks[i].setTranslateY(-50);
-    		planks[i].setTranslateX(-37.5 + 25 * (i - 4));
-    		g.getChildren().add(planks[i]);
-    	}
-    	//left
-    	for(int i = 8; i < 12; i++){
-    		planks[i] = new Box(10, 24, 100);
-    		planks[i].setMaterial(wood);
-    		planks[i].setTranslateX(-50);
-    		planks[i].setTranslateY(-37.5 + 25 * (i - 8));
-    		g.getChildren().add(planks[i]);
-    	}
-    	//right
-    	for(int i = 12; i < 16; i++){
-    		planks[i] = new Box(10, 100, 24);
-    		planks[i].setMaterial(wood);
-    		planks[i].setTranslateX(50);
-    		planks[i].setTranslateZ(-37.5 + 25 * (i - 12));
-    		g.getChildren().add(planks[i]);
-    	}
-    	//back
-    	for(int i = 16; i < 20; i++){
-    		planks[i] = new Box(100, 24, 10);
-    		planks[i].setMaterial(wood);
-    		planks[i].setTranslateZ(50);
-    		planks[i].setTranslateY(-37.5 + 25 * (i - 16));
-    		g.getChildren().add(planks[i]);
-    	}
-    	//front
-    	for(int i = 20; i < 24; i++){
-    		planks[i] = new Box(24, 100, 10);
-    		planks[i].setMaterial(wood);
-    		planks[i].setTranslateZ(-50);
-    		planks[i].setTranslateX(-37.5 + 25 * (i - 20));
-    		g.getChildren().add(planks[i]);
-    	}
-    	
     	
     	g.translate(x, y, z);
     	g.setVisible(true);
@@ -228,7 +197,7 @@ public class Main extends Application {
     }
     
     private void registerKeys(Scene scene, final Node root){
-        int speed = 5;
+        int speed = 10;
         scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
             public void handle(KeyEvent e){
                 switch(e.getCode()){
