@@ -9,6 +9,8 @@ import javafx.stage.Stage;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 
+import java.lang.Math;
+
 import utilities.EasyGroup;
 import utilities.Positioner;
 
@@ -16,7 +18,8 @@ public class Main extends Application {
     private Group root;
     private EasyGroup world;
     private PerspectiveCamera camera;
-    private EasyGroup cameraGroup;
+    private EasyGroup cameraBase;
+    private EasyGroup cameraTilt;
     private EasyGroup boxGroup;
     
     @Override
@@ -52,11 +55,13 @@ public class Main extends Application {
         camera.setNearClip(1);
         camera.setFarClip(1000);
         camera.setTranslateZ(-400);
-        cameraGroup = new EasyGroup();
-        cameraGroup.translate(0, 200, -400);
-        cameraGroup.rotate(180, 160, 180);
-        cameraGroup.getChildren().add(camera);
-        root.getChildren().add(cameraGroup);
+        cameraBase = new EasyGroup();
+        cameraBase.translate(0, 200, -400);
+        cameraBase.rotate(180, 160, 180);
+        cameraTilt = new EasyGroup();
+        cameraBase.getChildren().add(cameraTilt);
+        cameraTilt.getChildren().add(camera);
+        root.getChildren().add(cameraBase);
     }
     
     private void buildFloor(){
@@ -101,8 +106,6 @@ public class Main extends Application {
     	PhongMaterial wood = new PhongMaterial();
     	wood.setDiffuseColor(Color.SADDLEBROWN);
     	
-    	
-    	
     	//planks
     	Box[] planks = new Box[24];
     	int ps = 100; //plank size
@@ -112,46 +115,41 @@ public class Main extends Application {
     	
     	//more efficient way?
     	for(int i = 0; i < 24; i++){
-    		switch(i / 4){
-    		case 0:
-    			//floor
-    			planks[i] = new Box(l, s, m);//24 so there's a gap
-        		Positioner.repos(planks[i], 0, 50, (int)(-37.5 + 25 * i));
-        		break;
-    		case 1:
-    			//roof
-    			planks[i] = new Box(m, s, l);
-    			Positioner.repos(planks[i], (int)(-37.5 + 25 * (i - 4)), -50, 0);
-        		break;
-    		case 2:
-    			//left
-    			planks[i] = new Box(s, m, l);
-    			Positioner.repos(planks[i], -50, (int)(-37.5 + 25 * (i - 8)), 0);
-        		break;
-    		case 3:
-    			//right
-    			planks[i] = new Box(s, l, m);
-    			Positioner.repos(planks[i], 50, 0, (int)(-37.5 + 25 * (i - 12)));
-        		break;
-    		case 4:
-    			//back
-    			planks[i] = new Box(l, m, s);
-    			Positioner.repos(planks[i], 0, (int)(-37.5 + 25 * (i - 16)), 50);
-        		break;
-    		case 5:
-    			//front
-    			planks[i] = new Box(m, l, s);
-    			Positioner.repos(planks[i], (int)(-37.5 + 25 * (i - 20)), 0, -50);
-        		break;
-    		}
-    		planks[i].setMaterial(wood);
-    		g.getChildren().add(planks[i]);
+            switch(i / 4){
+            case 0:
+                    //floor
+                    planks[i] = new Box(l, s, m);//24 so there's a gap
+                    Positioner.repos(planks[i], 0, 50, (int)(-37.5 + 25 * i));
+                    break;
+            case 1:
+                    //roof
+                    planks[i] = new Box(m, s, l);
+                    Positioner.repos(planks[i], (int)(-37.5 + 25 * (i - 4)), -50, 0);
+                    break;
+            case 2:
+                    //left
+                    planks[i] = new Box(s, m, l);
+                    Positioner.repos(planks[i], -50, (int)(-37.5 + 25 * (i - 8)), 0);
+                    break;
+            case 3:
+                    //right
+                    planks[i] = new Box(s, l, m);
+                    Positioner.repos(planks[i], 50, 0, (int)(-37.5 + 25 * (i - 12)));
+                    break;
+            case 4:
+                    //back
+                    planks[i] = new Box(l, m, s);
+                    Positioner.repos(planks[i], 0, (int)(-37.5 + 25 * (i - 16)), 50);
+                    break;
+            case 5:
+                    //front
+                    planks[i] = new Box(m, l, s);
+                    Positioner.repos(planks[i], (int)(-37.5 + 25 * (i - 20)), 0, -50);
+                    break;
+            }
+            planks[i].setMaterial(wood);
+            g.getChildren().add(planks[i]);
     	}
-    	
-
-    	
-    	
-    	
     	
     	//edges yay it works
     	Box[] edges = new Box[12];
@@ -170,8 +168,6 @@ public class Main extends Application {
     				);
     		g.getChildren().add(edges[i]);
     	}
-    	
-    	
     	
     	// corners
     	Box[] corners = new Box[8];
@@ -200,40 +196,46 @@ public class Main extends Application {
         int speed = 10;
         scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
             public void handle(KeyEvent e){
+                double angle = (cameraBase.getRY() * Math.PI / 180);
                 switch(e.getCode()){
                     case W:
                     	//for some reason axis are swapped?
-                        cameraGroup.rX(speed);
+                        cameraTilt.rX(speed);
                         break;
                     case A:
-                        cameraGroup.rY(speed);
+                        cameraBase.rY(speed);
                         break;
                     case S:
-                        cameraGroup.rX(-speed);
+                        cameraTilt.rX(-speed);
                         break;
                     case D:
-                        cameraGroup.rY(-speed);
+                        cameraBase.rY(-speed);
                         break;
                     case UP:
-                        cameraGroup.tY(-speed);
+                        cameraBase.tX((int)(-speed * Math.cos(angle + Math.PI / 2)));
+                        cameraBase.tZ((int)(-speed * Math.sin(angle + Math.PI / 2)));
                         break;
                     case DOWN:
-                        cameraGroup.tY(speed);
+                        cameraBase.tX((int)(speed * Math.cos(angle + Math.PI / 2)));
+                        cameraBase.tZ((int)(speed * Math.sin(angle + Math.PI / 2)));
                         break;
                     case LEFT:
-                        cameraGroup.tX(-speed);
+                        // why does this work?
+                        cameraBase.tX((int)(speed * Math.cos(angle)));
+                        cameraBase.tZ((int)(speed * Math.sin(angle)));
                         break;
                     case RIGHT:
-                        cameraGroup.tX(speed);
+                        cameraBase.tX((int)(-speed * Math.cos(angle)));
+                        cameraBase.tZ((int)(-speed * Math.sin(angle)));
                         break;
                     case Z:
-                        cameraGroup.tZ(speed);
+                        cameraBase.tY(-speed);
                         break;
                     case X:
-                        cameraGroup.tZ(-speed);
+                        cameraBase.tY(speed);
                         break;
                     default:
-                    	cameraGroup.logData();
+                    	cameraBase.logData();
                     	break;
                 }
             }

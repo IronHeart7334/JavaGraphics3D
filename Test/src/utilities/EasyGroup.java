@@ -57,13 +57,21 @@ public class EasyGroup extends Group{
     public void rX(int x){
         r[0].setAngle(r[0].getAngle() + x);
     }
+    public int getRX(){
+        return (int)r[0].getAngle();
+    }
     public void rY(int y){
         r[1].setAngle(r[1].getAngle() + y);
+    }
+    public int getRY(){
+        return (int)r[1].getAngle();
     }
     public void rZ(int z){
         r[2].setAngle(r[2].getAngle() + z);
     }
-    
+    public int getRZ(){
+        return (int)r[2].getAngle();
+    }
     public void scale(int i){
         s.setX(i);
         s.setY(i);
