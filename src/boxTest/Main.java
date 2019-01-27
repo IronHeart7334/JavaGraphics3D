@@ -1,5 +1,6 @@
 package boxTest;
 
+import entities.AbstractEntity;
 import javafx.application.Application;
 import javafx.scene.*;
 import javafx.scene.Scene;
@@ -10,11 +11,16 @@ import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 
 import java.lang.Math;
+import java.util.ArrayList;
+import javafx.animation.AnimationTimer;
+import javafx.event.Event;
+import javafx.event.EventType;
+import javafx.scene.input.MouseEvent;
 
 import utilities.EasyGroup;
 import props.Crate;
 
-public class Main extends Application {
+public class Main extends Application implements EventHandler{
     private Group root;
     private EasyGroup world;
     private PerspectiveCamera camera;
@@ -22,18 +28,26 @@ public class Main extends Application {
     private EasyGroup cameraTilt;
     private EasyGroup boxGroup;
     
+    private AbstractEntity player;
+    private Group obstacles;
+    
     @Override
     public void start(Stage primaryStage) {
         root = new Group();
         world = new EasyGroup();
+        obstacles = new Group();
         
         root.getChildren().add(world);
         
         buildCamera();
         buildBox();
         
-        world.getChildren().add(new Crate(200, 200, 200, 100));
         
+        world.getChildren().add(obstacles);
+        obstacles.getChildren().add(new Crate(200, 200, 200, 100));
+        
+        player = new AbstractEntity(0, 0, 0){};
+        world.getChildren().add(player);
         buildFloor();
         
         Scene scene = new Scene(root, 500, 500, true);
@@ -45,10 +59,28 @@ public class Main extends Application {
         primaryStage.show();
         
         registerKeys(scene, root);
+        //scene.setOnMouseMoved(this);
+        
+        new AnimationTimer(){
+            @Override
+            public void handle(long now) {
+                if(!checkForCollide(player)){
+                    player.tY(10);
+                }
+            }
+        }.start();
     }
     
     public static void main(String[] args) {
         launch(args);
+    }
+    
+    public boolean checkForCollide(Node n){
+        return obstacles
+                .getChildren()
+                .filtered(node -> !node.equals(n))
+                .filtered(node -> node.getBoundsInParent().intersects(n.getBoundsInParent()))
+                .size() != 0;
     }
     
     //need to make two camera EasyGroups to fix up/down panning
@@ -78,7 +110,7 @@ public class Main extends Application {
         b.setMaterial(mat);
         
         groundGroup.getChildren().add(b);
-        world.getChildren().add(groundGroup);
+        obstacles.getChildren().add(groundGroup);
     }
     
     private void buildBox(){
@@ -93,7 +125,7 @@ public class Main extends Application {
         boxGroup.translate(200, 300, 200);
         boxGroup.getChildren().add(b);
         boxGroup.setVisible(true);
-        world.getChildren().add(boxGroup);
+        obstacles.getChildren().add(boxGroup);
     }
     
     private void registerKeys(Scene scene, final Node root){
@@ -138,11 +170,23 @@ public class Main extends Application {
                     case X:
                         cameraBase.tY(speed);
                         break;
+                    case SPACE:
+                        System.out.println("Collided with player? " + checkForCollide(player));
+                        break;
                     default:
                     	cameraBase.logData();
                     	break;
                 }
             }
         });
+    }
+
+    @Override
+    public void handle(Event event) {
+        if(event instanceof MouseEvent){
+            MouseEvent e = (MouseEvent)event;
+            System.out.println(e.getScreenX() + ", " + e.getScreenY());
+            //x seems too big
+        }
     }
 }
