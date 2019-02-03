@@ -9,6 +9,7 @@ import javafx.application.Application;
 import javafx.event.*;
 import javafx.scene.*;
 import javafx.scene.control.Button;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.*;
 import javafx.scene.shape.Box;
@@ -27,6 +28,8 @@ public class Main extends Application {
     private Camera camera;
     private Function f;
     private Group axisGroup;
+    private int rotateAngle;
+    private int tiltAngle;
     
     @Override
     public void start(Stage primaryStage) {
@@ -59,7 +62,9 @@ public class Main extends Application {
         
         
         axisGroup.getChildren().add(f.getIntegral(0, 100, 1, Math.PI * 2, 0.01));
-        
+        rotateAngle = 270;
+        tiltAngle = 0;
+        registerKeys(scene);
         primaryStage.setTitle("Hello World!");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -71,11 +76,11 @@ public class Main extends Application {
         cameraTilt = new Group();
         
         
-        cameraBase.setTranslateZ(-1);
         cameraBase.setRotationAxis(Rotate.Y_AXIS);
-        cameraBase.setRotate(45);
+        cameraTilt.setRotationAxis(Rotate.X_AXIS);
         
         cameraBase.getChildren().add(cameraTilt);
+        cameraBase.setRotationAxis(Rotate.Y_AXIS);
         cameraTilt.getChildren().add(camera);
         root.getChildren().add(cameraBase);
     }
@@ -98,8 +103,37 @@ public class Main extends Application {
         root.getChildren().add(axisGroup);
     }
     
-    private void registerKeys(Scene scene, final Node root){
-        
+    private void registerKeys(Scene scene){
+        int speed = 10;
+        scene.setOnKeyPressed((KeyEvent event) -> {
+            switch(event.getCode()){
+                case A:
+                    rotateAngle = (rotateAngle - speed) % 360;
+                    break;
+                case D:
+                    rotateAngle = (rotateAngle + speed) % 360;
+                    break;
+                case W:
+                    tiltAngle = (tiltAngle - speed) % 360;
+                    break;
+                case S:
+                    tiltAngle = (tiltAngle + speed) % 360;
+                    break;
+            }
+            
+            if(tiltAngle < -90){
+                tiltAngle = -90;
+            }
+            if(tiltAngle > 90){
+                tiltAngle = 90;
+            }
+            
+            cameraBase.setTranslateX(100 * Math.cos(rotateAngle * Math.PI / 180) * Math.cos(tiltAngle * Math.PI / 180));
+            cameraBase.setTranslateY(100 * Math.sin(tiltAngle * Math.PI / 180));
+            cameraBase.setTranslateZ(100 * Math.sin(rotateAngle * Math.PI / 180) * Math.sin(tiltAngle * Math.PI / 180));
+            cameraBase.setRotate(180 - rotateAngle);
+            cameraTilt.setRotate(180 - tiltAngle);
+        });
     }
     
     /**
