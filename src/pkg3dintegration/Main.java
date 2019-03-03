@@ -61,7 +61,7 @@ public class Main extends Application {
         };
         
         
-        axisGroup.getChildren().add(f.getIntegral(0, 100, 1, Math.PI * 2, 0.01));
+        axisGroup.getChildren().add(f.getIntegral(0, 100, 1));
         rotateAngle = 270;
         tiltAngle = 0;
         registerKeys(scene);
@@ -88,13 +88,13 @@ public class Main extends Application {
     private void createAxis(){
         axisGroup = new Group();
         
-        Box xAxis = new Box(100, 1, 1);
+        Box xAxis = new Box(100, 10, 10);
         Material red = new PhongMaterial(Color.RED);
         xAxis.setTranslateX(50);
         xAxis.setMaterial(red);
         axisGroup.getChildren().add(xAxis);
         
-        Box yAxis = new Box(1, 100, 1);
+        Box yAxis = new Box(10, 100, 10);
         Material blue = new PhongMaterial(Color.BLUE);
         yAxis.setTranslateY(50);
         yAxis.setMaterial(blue);
@@ -121,6 +121,8 @@ public class Main extends Application {
                     break;
             }
             
+            
+            
             if(tiltAngle < -90){
                 tiltAngle = -90;
             }
@@ -128,8 +130,8 @@ public class Main extends Application {
                 tiltAngle = 90;
             }
             
-            cameraBase.setTranslateX(100 * Math.cos(rotateAngle * Math.PI / 180) * Math.cos(tiltAngle * Math.PI / 180));
-            cameraBase.setTranslateY(100 * Math.sin(tiltAngle * Math.PI / 180));
+            cameraBase.setTranslateX(scene.getWidth() / 2 + 100 * Math.cos(rotateAngle * Math.PI / 180) * Math.cos(tiltAngle * Math.PI / 180));
+            cameraBase.setTranslateY(scene.getHeight() / 2 + 100 * Math.sin(tiltAngle * Math.PI / 180));
             cameraBase.setTranslateZ(100 * Math.sin(rotateAngle * Math.PI / 180) * Math.sin(tiltAngle * Math.PI / 180));
             cameraBase.setRotate(180 - rotateAngle);
             cameraTilt.setRotate(180 - tiltAngle);
