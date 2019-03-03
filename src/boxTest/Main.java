@@ -47,6 +47,8 @@ public class Main extends Application implements EventHandler{
         obstacles.getChildren().add(new Crate(200, 200, 200, 100));
         
         player = new AbstractEntity(0, 0, 0){};
+        player.getChildren().add(cameraBase);
+        
         world.getChildren().add(player);
         buildFloor();
         
@@ -91,7 +93,7 @@ public class Main extends Application implements EventHandler{
         camera.setTranslateZ(-400);
         cameraBase = new EasyGroup();
         cameraBase.translate(0, 200, -400);
-        cameraBase.rotate(180, 160, 180);
+        cameraBase.rotate(180, 90, 180);
         cameraTilt = new EasyGroup();
         cameraBase.getChildren().add(cameraTilt);
         cameraTilt.getChildren().add(camera);
@@ -148,21 +150,17 @@ public class Main extends Application implements EventHandler{
                         cameraBase.rY(-speed);
                         break;
                     case UP:
-                        cameraBase.tX((int)(-speed * Math.cos(angle + Math.PI / 2)));
-                        cameraBase.tZ((int)(-speed * Math.sin(angle + Math.PI / 2)));
+                        player.moveForward();
                         break;
                     case DOWN:
                         cameraBase.tX((int)(speed * Math.cos(angle + Math.PI / 2)));
                         cameraBase.tZ((int)(speed * Math.sin(angle + Math.PI / 2)));
                         break;
                     case LEFT:
-                        // why does this work?
-                        cameraBase.tX((int)(speed * Math.cos(angle)));
-                        cameraBase.tZ((int)(speed * Math.sin(angle)));
+                        player.turnLeft();
                         break;
                     case RIGHT:
-                        cameraBase.tX((int)(-speed * Math.cos(angle)));
-                        cameraBase.tZ((int)(-speed * Math.sin(angle)));
+                        player.turnRight();
                         break;
                     case Z:
                         cameraBase.tY(-speed);
@@ -171,7 +169,7 @@ public class Main extends Application implements EventHandler{
                         cameraBase.tY(speed);
                         break;
                     case SPACE:
-                        System.out.println("Collided with player? " + checkForCollide(player));
+                        System.out.println(cameraBase.getRotate());
                         break;
                     default:
                     	cameraBase.logData();
