@@ -25,11 +25,13 @@ public class Main extends Application {
     private Group root;
     private Group cameraBase;
     private Group cameraTilt;
+    private Group prevIntegration;
     private Camera camera;
     private Function f;
     private Group axisGroup;
     private int rotateAngle;
     private int tiltAngle;
+    private int dx;
     
     @Override
     public void start(Stage primaryStage) {
@@ -56,12 +58,12 @@ public class Main extends Application {
         f = new Function(){
             @Override
             public double f(double x){
-                return 100 * Math.cos(Math.PI * x / 50);
+                return 100 * Math.sin(Math.PI * x / 50);
             }
         };
-        
-        
-        axisGroup.getChildren().add(f.getIntegral(0, 100, 1));
+        dx = 256;
+        prevIntegration = f.getIntegral(0, 100, 256);
+       
         rotateAngle = 270;
         tiltAngle = 0;
         registerKeys(scene);
@@ -119,6 +121,13 @@ public class Main extends Application {
                 case S:
                     tiltAngle = (tiltAngle + speed) % 360;
                     break;
+                case SPACE:
+                    dx /= 2;
+                    if(dx < 1){
+                        dx = 1;
+                    }
+                    reintegrate();
+                    break;
             }
             
             
@@ -136,6 +145,12 @@ public class Main extends Application {
             cameraBase.setRotate(180 - rotateAngle);
             cameraTilt.setRotate(180 - tiltAngle);
         });
+    }
+    
+    private void reintegrate(){
+        axisGroup.getChildren().remove(prevIntegration);
+        prevIntegration = f.getIntegral(0, 100, dx);
+        axisGroup.getChildren().add(prevIntegration);
     }
     
     /**
