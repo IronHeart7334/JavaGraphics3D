@@ -58,7 +58,7 @@ public class Main extends Application {
         f = new Function(){
             @Override
             public double f(double x){
-                return 100 * Math.sin(Math.PI * x / 50);
+                return 100 * Math.cos(Math.PI * x / 50);
             }
         };
         dx = 256;
