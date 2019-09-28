@@ -19,6 +19,7 @@ import javafx.scene.input.MouseEvent;
 
 import utilities.EasyGroup;
 import props.Crate;
+import world.World;
 
 public class Main extends Application implements EventHandler{
     private Group root;
@@ -38,19 +39,20 @@ public class Main extends Application implements EventHandler{
         obstacles = new Group();
         
         root.getChildren().add(world);
+        root.getChildren().add(World.createTest().getGroup());
         
         buildCamera();
         buildBox();
         
         
         world.getChildren().add(obstacles);
-        obstacles.getChildren().add(new Crate(200, 200, 200, 100));
+        //obstacles.getChildren().add(new Crate(200, 200, 200, 100));
         
         player = new AbstractEntity(0, 0, 0){};
         player.getChildren().add(cameraBase);
         
         world.getChildren().add(player);
-        buildFloor();
+        //buildFloor();
         
         Scene scene = new Scene(root, 500, 500, true);
         scene.setFill(Color.LIGHTBLUE);
@@ -63,6 +65,7 @@ public class Main extends Application implements EventHandler{
         registerKeys(scene, root);
         //scene.setOnMouseMoved(this);
         
+        /*
         new AnimationTimer(){
             @Override
             public void handle(long now) {
@@ -70,7 +73,7 @@ public class Main extends Application implements EventHandler{
                     player.tY(10);
                 }
             }
-        }.start();
+        }.start();*/
     }
     
     public static void main(String[] args) {
@@ -131,7 +134,7 @@ public class Main extends Application implements EventHandler{
     }
     
     private void registerKeys(Scene scene, final Node root){
-        int speed = 10;
+        int speed = 5;
         scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
             public void handle(KeyEvent e){
                 double angle = (cameraBase.getRY() * Math.PI / 180);
