@@ -156,8 +156,7 @@ public class Main extends Application implements EventHandler{
                         player.moveForward();
                         break;
                     case DOWN:
-                        cameraBase.tX((int)(speed * Math.cos(angle + Math.PI / 2)));
-                        cameraBase.tZ((int)(speed * Math.sin(angle + Math.PI / 2)));
+                        player.moveBackward();
                         break;
                     case LEFT:
                         player.turnLeft();
@@ -173,6 +172,7 @@ public class Main extends Application implements EventHandler{
                         break;
                     case SPACE:
                         System.out.println(cameraBase.getRotate());
+                        System.out.println(player.getRotate());
                         break;
                     default:
                     	cameraBase.logData();

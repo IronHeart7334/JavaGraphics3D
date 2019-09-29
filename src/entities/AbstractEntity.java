@@ -42,7 +42,12 @@ public abstract class AbstractEntity extends EasyGroup{
     }
 
     public void moveForward() {
-        setTranslateX(this.getTranslateX() + speed * Math.cos(facing * Math.PI / 180));
-        setTranslateZ(this.getTranslateZ() + speed * -Math.sin(facing * Math.PI / 180));
+        setTranslateX(getTranslateX() + speed * Math.sin(facing * Math.PI / 180));
+        setTranslateZ(getTranslateZ() + speed * Math.cos(facing * Math.PI / 180));
+    }
+    
+    public void moveBackward(){
+        setTranslateX(getTranslateX() - speed / 2 * Math.sin(facing * Math.PI / 180));
+        setTranslateZ(getTranslateZ() - speed / 2 * Math.cos(facing * Math.PI / 180));
     }
 }

@@ -1,5 +1,9 @@
 package world;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
@@ -37,6 +41,25 @@ public class World {
         }
         cubes.getChildren().add(keyToCube.get(cubeKey).create(x, y, z));
         map[x][y][z] = cubeKey;
+        return this;
+    }
+    
+    //untested
+    public World addCubesFromCSV(InputStream stream) throws IOException{
+        BufferedReader buff = new BufferedReader(new InputStreamReader(stream));
+        String[] line;
+        int key;
+        int x;
+        int y;
+        int z;
+        while(buff.ready()){
+            line = buff.readLine().split(",");
+            key = Integer.parseInt(line[0]);
+            x = Integer.parseInt(line[1]);
+            y = Integer.parseInt(line[2]);
+            z = Integer.parseInt(line[3]);
+            addCube(key, x, y, z);
+        }
         return this;
     }
     
