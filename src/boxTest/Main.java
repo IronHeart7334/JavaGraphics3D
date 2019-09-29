@@ -31,6 +31,8 @@ public class Main extends Application implements EventHandler{
     private AbstractEntity player;
     private Group obstacles;
     
+    private final int CAMERA_OFFSET = 400;
+    
     @Override
     public void start(Stage primaryStage) {
         root = new Group();
@@ -111,8 +113,8 @@ public class Main extends Application implements EventHandler{
         camera = new PerspectiveCamera(true);
         camera.setNearClip(1);
         camera.setFarClip(1000);
-        camera.setTranslateY(-400);
-        camera.setTranslateZ(-400);
+        camera.setTranslateY(-CAMERA_OFFSET * Math.sqrt(2) / 2);
+        camera.setTranslateZ(-CAMERA_OFFSET * Math.sqrt(2) / 2);
         camera.setRotationAxis(Rotate.X_AXIS);
         camera.setRotate(-45);
     }
@@ -150,16 +152,25 @@ public class Main extends Application implements EventHandler{
     }
     
     private void registerKeys(Scene scene, final Node root){
+        //todo: add ability to change camera offset
         int speed = 5;
         scene.setOnKeyPressed((KeyEvent e) -> {
             switch(e.getCode()){
                 case W:
-                    //make this also change y and z coords
-                    camera.setRotate(camera.getRotate() + speed);
+                    camera.setRotate(camera.getRotate() - speed);
+                    if(camera.getRotate() <= -90.0){
+                        camera.setRotate(-90.0);
+                    }
+                    camera.setTranslateY(CAMERA_OFFSET * Math.sin(camera.getRotate() * Math.PI / 180));
+                    camera.setTranslateZ(-CAMERA_OFFSET * Math.cos(camera.getRotate() * Math.PI / 180));
                     break;
                 case S:
-                    //same here
-                    camera.setRotate(camera.getRotate() - speed);
+                    camera.setRotate(camera.getRotate() + speed);
+                    if(camera.getRotate() >= 0.0){
+                        camera.setRotate(0.0);
+                    }
+                    camera.setTranslateY(CAMERA_OFFSET * Math.sin(camera.getRotate() * Math.PI / 180));
+                    camera.setTranslateZ(-CAMERA_OFFSET * Math.cos(camera.getRotate() * Math.PI / 180));
                     break;
                 case UP:
                     player.moveForward();
