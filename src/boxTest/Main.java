@@ -16,6 +16,7 @@ import javafx.animation.AnimationTimer;
 import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.transform.Rotate;
 
 import utilities.EasyGroup;
 import props.Crate;
@@ -25,8 +26,6 @@ public class Main extends Application implements EventHandler{
     private Group root;
     private EasyGroup world;
     private PerspectiveCamera camera;
-    private EasyGroup cameraBase;
-    private EasyGroup cameraTilt;
     private EasyGroup boxGroup;
     
     private AbstractEntity player;
@@ -39,17 +38,18 @@ public class Main extends Application implements EventHandler{
         obstacles = new Group();
         
         root.getChildren().add(world);
-        root.getChildren().add(World.createTest().getGroup());
+        root.getChildren().add(buildAxis());
+        //root.getChildren().add(World.createTest().getGroup());
         
         buildCamera();
-        buildBox();
+        //buildBox();
         
         
         world.getChildren().add(obstacles);
         //obstacles.getChildren().add(new Crate(200, 200, 200, 100));
         
         player = new AbstractEntity(0, 0, 0){};
-        player.getChildren().add(cameraBase);
+        player.getChildren().add(camera);
         
         world.getChildren().add(player);
         //buildFloor();
@@ -80,6 +80,24 @@ public class Main extends Application implements EventHandler{
         launch(args);
     }
     
+    private Group buildAxis(){
+        Group axis = new Group();
+        Box x = new Box(100, 1, 1);
+        Box y = new Box(1, 100, 1);
+        Box z = new Box(1, 1, 100);
+        x.setTranslateX(50);
+        y.setTranslateY(50);
+        z.setTranslateZ(50);
+        x.setMaterial(new PhongMaterial(Color.RED));
+        y.setMaterial(new PhongMaterial(Color.GREEN));
+        z.setMaterial(new PhongMaterial(Color.BLUE));
+        axis.getChildren().add(x);
+        axis.getChildren().add(y);
+        axis.getChildren().add(z);
+        return axis;
+    }
+    
+    //move this
     public boolean checkForCollide(Node n){
         return obstacles
                 .getChildren()
@@ -93,16 +111,13 @@ public class Main extends Application implements EventHandler{
         camera = new PerspectiveCamera(true);
         camera.setNearClip(1);
         camera.setFarClip(1000);
+        camera.setTranslateY(-400);
         camera.setTranslateZ(-400);
-        cameraBase = new EasyGroup();
-        cameraBase.translate(0, 200, -400);
-        cameraBase.rotate(180, 90, 180);
-        cameraTilt = new EasyGroup();
-        cameraBase.getChildren().add(cameraTilt);
-        cameraTilt.getChildren().add(camera);
-        root.getChildren().add(cameraBase);
+        camera.setRotationAxis(Rotate.X_AXIS);
+        camera.setRotate(-45);
     }
     
+    //remove this
     private void buildFloor(){
         EasyGroup groundGroup = new EasyGroup();
         PhongMaterial mat = new PhongMaterial();
@@ -118,6 +133,7 @@ public class Main extends Application implements EventHandler{
         obstacles.getChildren().add(groundGroup);
     }
     
+    //remove this
     private void buildBox(){
         boxGroup = new EasyGroup();
         PhongMaterial mat = new PhongMaterial();
@@ -135,49 +151,35 @@ public class Main extends Application implements EventHandler{
     
     private void registerKeys(Scene scene, final Node root){
         int speed = 5;
-        scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
-            public void handle(KeyEvent e){
-                double angle = (cameraBase.getRY() * Math.PI / 180);
-                switch(e.getCode()){
-                    case W:
-                    	//for some reason axis are swapped?
-                        cameraTilt.rX(speed);
-                        break;
-                    case A:
-                        cameraBase.rY(speed);
-                        break;
-                    case S:
-                        cameraTilt.rX(-speed);
-                        break;
-                    case D:
-                        cameraBase.rY(-speed);
-                        break;
-                    case UP:
-                        player.moveForward();
-                        break;
-                    case DOWN:
-                        player.moveBackward();
-                        break;
-                    case LEFT:
-                        player.turnLeft();
-                        break;
-                    case RIGHT:
-                        player.turnRight();
-                        break;
-                    case Z:
-                        cameraBase.tY(-speed);
-                        break;
-                    case X:
-                        cameraBase.tY(speed);
-                        break;
-                    case SPACE:
-                        System.out.println(cameraBase.getRotate());
-                        System.out.println(player.getRotate());
-                        break;
-                    default:
-                    	cameraBase.logData();
-                    	break;
-                }
+        scene.setOnKeyPressed((KeyEvent e) -> {
+            switch(e.getCode()){
+                case W:
+                    //make this also change y and z coords
+                    camera.setRotate(camera.getRotate() + speed);
+                    break;
+                case S:
+                    //same here
+                    camera.setRotate(camera.getRotate() - speed);
+                    break;
+                case UP:
+                    player.moveForward();
+                    break;
+                case DOWN:
+                    player.moveBackward();
+                    break;
+                case LEFT:
+                    player.turnLeft();
+                    break;
+                case RIGHT:
+                    player.turnRight();
+                    break;
+                case SPACE:
+                    System.out.println(camera.getRotate());
+                    System.out.println(player.getRotate());
+                    break;
+                default:
+                    player.logData();
+                    break;
             }
         });
     }
