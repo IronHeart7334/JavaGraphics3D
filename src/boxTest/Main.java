@@ -31,7 +31,8 @@ public class Main extends Application implements EventHandler{
     private AbstractEntity player;
     private Group obstacles;
     
-    private final int CAMERA_OFFSET = 400;
+    private int camera_offset = 400;
+    private final int CAMERA_OFFSET_SPEED = 10;
     
     @Override
     public void start(Stage primaryStage) {
@@ -108,13 +109,12 @@ public class Main extends Application implements EventHandler{
                 .size() != 0;
     }
     
-    //need to make two camera EasyGroups to fix up/down panning
     private void buildCamera(){
         camera = new PerspectiveCamera(true);
         camera.setNearClip(1);
         camera.setFarClip(1000);
-        camera.setTranslateY(-CAMERA_OFFSET * Math.sqrt(2) / 2);
-        camera.setTranslateZ(-CAMERA_OFFSET * Math.sqrt(2) / 2);
+        camera.setTranslateY(-camera_offset * Math.sqrt(2) / 2);
+        camera.setTranslateZ(-camera_offset * Math.sqrt(2) / 2);
         camera.setRotationAxis(Rotate.X_AXIS);
         camera.setRotate(-45);
     }
@@ -152,25 +152,40 @@ public class Main extends Application implements EventHandler{
     }
     
     private void registerKeys(Scene scene, final Node root){
-        //todo: add ability to change camera offset
         int speed = 5;
         scene.setOnKeyPressed((KeyEvent e) -> {
             switch(e.getCode()){
+                case EQUALS:
+                    camera_offset -= CAMERA_OFFSET_SPEED;
+                    if(camera_offset <= player.getSize() * 3){
+                        camera_offset = player.getSize() * 3;
+                    }
+                    camera.setTranslateY(camera_offset * Math.sin(camera.getRotate() * Math.PI / 180));
+                    camera.setTranslateZ(-camera_offset * Math.cos(camera.getRotate() * Math.PI / 180));
+                    break;
+                case MINUS:
+                    camera_offset += CAMERA_OFFSET_SPEED;
+                    if(camera_offset >= 1000){
+                        camera_offset = 1000;
+                    }
+                    camera.setTranslateY(camera_offset * Math.sin(camera.getRotate() * Math.PI / 180));
+                    camera.setTranslateZ(-camera_offset * Math.cos(camera.getRotate() * Math.PI / 180));
+                    break;
                 case W:
                     camera.setRotate(camera.getRotate() - speed);
                     if(camera.getRotate() <= -90.0){
                         camera.setRotate(-90.0);
                     }
-                    camera.setTranslateY(CAMERA_OFFSET * Math.sin(camera.getRotate() * Math.PI / 180));
-                    camera.setTranslateZ(-CAMERA_OFFSET * Math.cos(camera.getRotate() * Math.PI / 180));
+                    camera.setTranslateY(camera_offset * Math.sin(camera.getRotate() * Math.PI / 180));
+                    camera.setTranslateZ(-camera_offset * Math.cos(camera.getRotate() * Math.PI / 180));
                     break;
                 case S:
                     camera.setRotate(camera.getRotate() + speed);
                     if(camera.getRotate() >= 0.0){
                         camera.setRotate(0.0);
                     }
-                    camera.setTranslateY(CAMERA_OFFSET * Math.sin(camera.getRotate() * Math.PI / 180));
-                    camera.setTranslateZ(-CAMERA_OFFSET * Math.cos(camera.getRotate() * Math.PI / 180));
+                    camera.setTranslateY(camera_offset * Math.sin(camera.getRotate() * Math.PI / 180));
+                    camera.setTranslateZ(-camera_offset * Math.cos(camera.getRotate() * Math.PI / 180));
                     break;
                 case UP:
                     player.moveForward();

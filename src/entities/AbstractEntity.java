@@ -31,6 +31,10 @@ public abstract class AbstractEntity extends EasyGroup{
         getChildren().add(b);
     }
     
+    public int getSize(){
+        return size;
+    }
+    
     public void turnLeft(){
         facing = (facing - 10) % 360;
         setRotate(facing);
