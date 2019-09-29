@@ -48,9 +48,9 @@ public class World {
     public boolean checkForCollisions(AbstractEntity e){
         boolean collide = false;
         //get the entities position on this map array
-        int x = (int) (e.getLocalToSceneTransform().getTx() / Cube.CUBE_SIZE);
-        int y = (int) (e.getLocalToSceneTransform().getTy() / Cube.CUBE_SIZE);
-        int z = (int) (e.getLocalToSceneTransform().getTz() / Cube.CUBE_SIZE);
+        int x = (int) (e.getTranslateX() / Cube.CUBE_SIZE);
+        int y = (int) (e.getTranslateY() / Cube.CUBE_SIZE);
+        int z = (int) (e.getTranslateZ() / Cube.CUBE_SIZE);
         if(
             x >= 0 && x < width && y >= 0 && y + 1 < height && z >= 0 && z < depth
             && map[x][y + 1][z] != 0

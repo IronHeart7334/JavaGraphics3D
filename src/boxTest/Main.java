@@ -181,7 +181,7 @@ public class Main extends Application{
                     System.out.println(player.getRotate());
                     break;
                 default:
-                    player.logData();
+                    player.displayData();
                     break;
             }
         });

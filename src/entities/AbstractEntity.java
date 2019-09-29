@@ -1,5 +1,6 @@
 package entities;
 
+import static java.lang.System.out;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.scene.transform.Rotate;
@@ -64,5 +65,11 @@ public abstract class AbstractEntity extends EasyGroup{
     
     public void fall(){
         setTranslateY(getTranslateY() + GRAVITY);
+    }
+    
+    public void displayData(){
+        out.println("X: " + getTranslateX());
+        out.println("Y: " + getTranslateY());
+        out.println("Z: " + getTranslateZ());
     }
 }
