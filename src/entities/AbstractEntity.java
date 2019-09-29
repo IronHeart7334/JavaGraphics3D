@@ -17,6 +17,8 @@ public abstract class AbstractEntity extends EasyGroup{
     private int speed;
     private int facing; //store as degrees, as radians are hard to read
     
+    public static final int GRAVITY = 10; //placeholder
+    
     public AbstractEntity(int x, int y, int z){
         super();
         translate(x, y, z);
@@ -25,6 +27,7 @@ public abstract class AbstractEntity extends EasyGroup{
         facing = 0;
         size = 100;
         setRotationAxis(Rotate.Y_AXIS);
+        
         Box b = new Box(size, size, size);
         b.setMaterial(blue);
         
@@ -53,5 +56,13 @@ public abstract class AbstractEntity extends EasyGroup{
     public void moveBackward(){
         setTranslateX(getTranslateX() - speed / 2 * Math.sin(facing * Math.PI / 180));
         setTranslateZ(getTranslateZ() - speed / 2 * Math.cos(facing * Math.PI / 180));
+    }
+    
+    public void jump(){
+        setTranslateY(getTranslateY() - speed);
+    }
+    
+    public void fall(){
+        setTranslateY(getTranslateY() + GRAVITY);
     }
 }

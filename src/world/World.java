@@ -1,5 +1,6 @@
 package world;
 
+import entities.AbstractEntity;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,6 +45,24 @@ public class World {
         return this;
     }
     
+    public boolean checkForCollisions(AbstractEntity e){
+        boolean collide = false;
+        //get the entities position on this map array
+        int x = (int) (e.getLocalToSceneTransform().getTx() / Cube.CUBE_SIZE);
+        int y = (int) (e.getLocalToSceneTransform().getTy() / Cube.CUBE_SIZE);
+        int z = (int) (e.getLocalToSceneTransform().getTz() / Cube.CUBE_SIZE);
+        if(
+            x >= 0 && x < width && y >= 0 && y + 1 < height && z >= 0 && z < depth
+            && map[x][y + 1][z] != 0
+        ){
+            //tile below is tangible
+            collide = true;
+            e.setTranslateY(y * Cube.CUBE_SIZE);
+        }
+        
+        return collide;
+    }
+    
     //untested
     public World addCubesFromCSV(InputStream stream) throws IOException{
         BufferedReader buff = new BufferedReader(new InputStreamReader(stream));
@@ -68,23 +87,20 @@ public class World {
     }
     
     public static World createTest(){
-        World w = new World(5, 5, 5);
-        PhongMaterial[] mats = new PhongMaterial[]{
-            new PhongMaterial(Color.RED),
-            new PhongMaterial(Color.BLUE)
-        };
+        World w = new World(10, 10, 10);
         w
-            .addTemplate(1, new CubeTemplate(mats[0]))
-            .addTemplate(2, new CubeTemplate(mats[1]));
-        for(int x = 0; x < 5; x++){
-            for(int z = 0; z < 5; z++){
-                w.addCube((x + z) % 2 + 1, x, 0, z);
+            .addTemplate(1, new CubeTemplate(new PhongMaterial(Color.RED)))
+            .addTemplate(2, new CubeTemplate(new PhongMaterial(Color.GREEN)))
+            .addTemplate(3, new CubeTemplate(new PhongMaterial(Color.BLUE)));
+        for(int x = 0; x < w.width; x++){
+            for(int z = 0; z < w.depth; z++){
+                w.addCube((x + z) % 3 + 1, x, w.height - 1, z);
             }
         }
         w
-            .addCube(1, 0, 1, 0)
-            .addCube(1, 1, 1, 0)
-            .addCube(1, 0, 1, 1);
+            .addCube(1, 0, 8, 0)
+            .addCube(1, 1, 8, 0)
+            .addCube(1, 0, 8, 1);
         return w;
     }
 }

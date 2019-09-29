@@ -20,11 +20,12 @@ import javafx.scene.transform.Rotate;
 
 import utilities.EasyGroup;
 import props.Crate;
+import world.Cube;
 import world.World;
 
-public class Main extends Application implements EventHandler{
+public class Main extends Application{
     private Group root;
-    private EasyGroup world;
+    private World world;
     private PerspectiveCamera camera;
     private EasyGroup boxGroup;
     
@@ -37,25 +38,24 @@ public class Main extends Application implements EventHandler{
     @Override
     public void start(Stage primaryStage) {
         root = new Group();
-        world = new EasyGroup();
+        world = World.createTest();
+        Group g = world.getGroup();
         obstacles = new Group();
         
-        root.getChildren().add(world);
-        root.getChildren().add(buildAxis());
-        //root.getChildren().add(World.createTest().getGroup());
+        root.getChildren().add(g);
+        g.getChildren().add(buildAxis(Cube.CUBE_SIZE * 10));
         
         buildCamera();
         //buildBox();
         
         
-        world.getChildren().add(obstacles);
+        g.getChildren().add(obstacles);
         //obstacles.getChildren().add(new Crate(200, 200, 200, 100));
         
         player = new AbstractEntity(0, 0, 0){};
         player.getChildren().add(camera);
         
-        world.getChildren().add(player);
-        //buildFloor();
+        g.getChildren().add(player);
         
         Scene scene = new Scene(root, 500, 500, true);
         scene.setFill(Color.LIGHTBLUE);
@@ -66,31 +66,30 @@ public class Main extends Application implements EventHandler{
         primaryStage.show();
         
         registerKeys(scene, root);
-        //scene.setOnMouseMoved(this);
         
-        /*
+        
         new AnimationTimer(){
             @Override
             public void handle(long now) {
-                if(!checkForCollide(player)){
-                    player.tY(10);
+                if(!world.checkForCollisions(player)){
+                    player.fall();
                 }
             }
-        }.start();*/
+        }.start();
     }
     
     public static void main(String[] args) {
         launch(args);
     }
     
-    private Group buildAxis(){
+    private Group buildAxis(int axisSize){
         Group axis = new Group();
-        Box x = new Box(100, 1, 1);
-        Box y = new Box(1, 100, 1);
-        Box z = new Box(1, 1, 100);
-        x.setTranslateX(50);
-        y.setTranslateY(50);
-        z.setTranslateZ(50);
+        Box x = new Box(axisSize, 1, 1);
+        Box y = new Box(1, axisSize, 1);
+        Box z = new Box(1, 1, axisSize);
+        x.setTranslateX(axisSize / 2);
+        y.setTranslateY(axisSize / 2);
+        z.setTranslateZ(axisSize / 2);
         x.setMaterial(new PhongMaterial(Color.RED));
         y.setMaterial(new PhongMaterial(Color.GREEN));
         z.setMaterial(new PhongMaterial(Color.BLUE));
@@ -100,39 +99,14 @@ public class Main extends Application implements EventHandler{
         return axis;
     }
     
-    //move this
-    public boolean checkForCollide(Node n){
-        return obstacles
-                .getChildren()
-                .filtered(node -> !node.equals(n))
-                .filtered(node -> node.getBoundsInParent().intersects(n.getBoundsInParent()))
-                .size() != 0;
-    }
-    
     private void buildCamera(){
         camera = new PerspectiveCamera(true);
         camera.setNearClip(1);
-        camera.setFarClip(1000);
+        camera.setFarClip(Cube.CUBE_SIZE * 20);
         camera.setTranslateY(-camera_offset * Math.sqrt(2) / 2);
         camera.setTranslateZ(-camera_offset * Math.sqrt(2) / 2);
         camera.setRotationAxis(Rotate.X_AXIS);
         camera.setRotate(-45);
-    }
-    
-    //remove this
-    private void buildFloor(){
-        EasyGroup groundGroup = new EasyGroup();
-        PhongMaterial mat = new PhongMaterial();
-        mat.setDiffuseColor(Color.SANDYBROWN);
-        mat.setSpecularColor(Color.GOLD);
-        
-        groundGroup.translate(0, 400, 0);
-        
-        Box b = new Box(500, 100, 500);
-        b.setMaterial(mat);
-        
-        groundGroup.getChildren().add(b);
-        obstacles.getChildren().add(groundGroup);
     }
     
     //remove this
@@ -200,6 +174,9 @@ public class Main extends Application implements EventHandler{
                     player.turnRight();
                     break;
                 case SPACE:
+                    player.jump();
+                    break;
+                case Q:
                     System.out.println(camera.getRotate());
                     System.out.println(player.getRotate());
                     break;
@@ -208,14 +185,5 @@ public class Main extends Application implements EventHandler{
                     break;
             }
         });
-    }
-
-    @Override
-    public void handle(Event event) {
-        if(event instanceof MouseEvent){
-            MouseEvent e = (MouseEvent)event;
-            System.out.println(e.getScreenX() + ", " + e.getScreenY());
-            //x seems too big
-        }
     }
 }
