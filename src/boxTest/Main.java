@@ -11,6 +11,7 @@ import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 
 import java.lang.Math;
+import static java.lang.System.out;
 import java.util.ArrayList;
 import javafx.animation.AnimationTimer;
 import javafx.event.Event;
@@ -32,7 +33,7 @@ public class Main extends Application{
     private AbstractEntity player;
     private Group obstacles;
     
-    private int camera_offset = 400;
+    private int cameraOffset = 400;
     private final int CAMERA_OFFSET_SPEED = 10;
     
     @Override
@@ -41,7 +42,7 @@ public class Main extends Application{
         world = World.createTest();
         Group g = world.getGroup();
         obstacles = new Group();
-        
+        player = new AbstractEntity(0, 0, 0){};
         root.getChildren().add(g);
         g.getChildren().add(buildAxis(Cube.CUBE_SIZE * 10));
         
@@ -52,7 +53,7 @@ public class Main extends Application{
         g.getChildren().add(obstacles);
         //obstacles.getChildren().add(new Crate(200, 200, 200, 100));
         
-        player = new AbstractEntity(0, 0, 0){};
+        
         player.getChildren().add(camera);
         
         g.getChildren().add(player);
@@ -103,10 +104,8 @@ public class Main extends Application{
         camera = new PerspectiveCamera(true);
         camera.setNearClip(1);
         camera.setFarClip(Cube.CUBE_SIZE * 20);
-        camera.setTranslateY(-camera_offset * Math.sqrt(2) / 2);
-        camera.setTranslateZ(-camera_offset * Math.sqrt(2) / 2);
         camera.setRotationAxis(Rotate.X_AXIS);
-        camera.setRotate(-45);
+        updateCamera();
     }
     
     //remove this
@@ -125,41 +124,44 @@ public class Main extends Application{
         obstacles.getChildren().add(boxGroup);
     }
     
+    // do I need to take into account the player's rotation???
+    private void updateCamera(){
+        //camera.setTranslateX(-cameraOffset * Math.sin(player.getRotate() * Math.PI / 180) * Math.cos(camera.getRotate() * Math.PI / 180));
+        camera.setTranslateY(cameraOffset * Math.sin(camera.getRotate() * Math.PI / 180));
+        camera.setTranslateZ(-cameraOffset * Math.cos(camera.getRotate() * Math.PI / 180));// * Math.cos(camera.getRotate() * Math.PI / 180));
+    }
+    
     private void registerKeys(Scene scene, final Node root){
         int speed = 5;
         scene.setOnKeyPressed((KeyEvent e) -> {
             switch(e.getCode()){
                 case EQUALS:
-                    camera_offset -= CAMERA_OFFSET_SPEED;
-                    if(camera_offset <= player.getSize() * 3){
-                        camera_offset = player.getSize() * 3;
+                    cameraOffset -= CAMERA_OFFSET_SPEED;
+                    if(cameraOffset <= player.getSize() * 3){
+                        cameraOffset = player.getSize() * 3;
                     }
-                    camera.setTranslateY(camera_offset * Math.sin(camera.getRotate() * Math.PI / 180));
-                    camera.setTranslateZ(-camera_offset * Math.cos(camera.getRotate() * Math.PI / 180));
+                    updateCamera();
                     break;
                 case MINUS:
-                    camera_offset += CAMERA_OFFSET_SPEED;
-                    if(camera_offset >= 1000){
-                        camera_offset = 1000;
+                    cameraOffset += CAMERA_OFFSET_SPEED;
+                    if(cameraOffset >= 1000){
+                        cameraOffset = 1000;
                     }
-                    camera.setTranslateY(camera_offset * Math.sin(camera.getRotate() * Math.PI / 180));
-                    camera.setTranslateZ(-camera_offset * Math.cos(camera.getRotate() * Math.PI / 180));
+                    updateCamera();
                     break;
                 case W:
                     camera.setRotate(camera.getRotate() - speed);
                     if(camera.getRotate() <= -90.0){
                         camera.setRotate(-90.0);
                     }
-                    camera.setTranslateY(camera_offset * Math.sin(camera.getRotate() * Math.PI / 180));
-                    camera.setTranslateZ(-camera_offset * Math.cos(camera.getRotate() * Math.PI / 180));
+                    updateCamera();
                     break;
                 case S:
                     camera.setRotate(camera.getRotate() + speed);
                     if(camera.getRotate() >= 0.0){
                         camera.setRotate(0.0);
                     }
-                    camera.setTranslateY(camera_offset * Math.sin(camera.getRotate() * Math.PI / 180));
-                    camera.setTranslateZ(-camera_offset * Math.cos(camera.getRotate() * Math.PI / 180));
+                    updateCamera();
                     break;
                 case UP:
                     player.moveForward();
@@ -169,15 +171,19 @@ public class Main extends Application{
                     break;
                 case LEFT:
                     player.turnLeft();
+                    updateCamera();
                     break;
                 case RIGHT:
                     player.turnRight();
+                    updateCamera();
                     break;
                 case SPACE:
                     player.jump();
                     break;
                 case Q:
                     System.out.println(camera.getRotate());
+                    out.println("X: " +camera.getTranslateX());
+                    out.println("Z: " + camera.getTranslateZ());
                     System.out.println(player.getRotate());
                     break;
                 default:
