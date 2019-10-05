@@ -54,8 +54,7 @@ public class Main extends Application{
         g.getChildren().add(player);
         //obstacles.getChildren().add(new Crate(200, 200, 200, 100));
         
-        ((Group)player.getParent()).getChildren().add(camera);
-        //player.getChildren().add(camera);
+        player.getChildren().add(camera);
         
         
         
@@ -127,7 +126,6 @@ public class Main extends Application{
     
     // do I need to take into account the player's rotation???
     private void updateCamera(){
-        camera.setTranslateX(-cameraOffset * Math.sin(player.getRotate() * Math.PI / 180) * Math.cos(camera.getRotate() * Math.PI / 180));
         camera.setTranslateY(cameraOffset * Math.sin(camera.getRotate() * Math.PI / 180));
         camera.setTranslateZ(-cameraOffset * Math.cos(player.getRotate() * Math.PI / 180) * Math.cos(camera.getRotate() * Math.PI / 180));
     }
