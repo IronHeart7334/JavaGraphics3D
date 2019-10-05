@@ -27,6 +27,7 @@ import world.World;
 public class Main extends Application{
     private Group root;
     private World world;
+    private Group cameraRotate;
     private PerspectiveCamera camera;
     private EasyGroup boxGroup;
     
@@ -54,7 +55,7 @@ public class Main extends Application{
         g.getChildren().add(player);
         //obstacles.getChildren().add(new Crate(200, 200, 200, 100));
         
-        player.getChildren().add(camera);
+        g.getChildren().add(cameraRotate);
         
         
         
@@ -101,10 +102,13 @@ public class Main extends Application{
     }
     
     private void buildCamera(){
+        cameraRotate = new Group();
+        cameraRotate.setRotationAxis(Rotate.Y_AXIS);
         camera = new PerspectiveCamera(true);
         camera.setNearClip(1);
         camera.setFarClip(Cube.CUBE_SIZE * 20);
         camera.setRotationAxis(Rotate.X_AXIS);
+        cameraRotate.getChildren().add(camera);
         updateCamera();
     }
     
@@ -124,10 +128,11 @@ public class Main extends Application{
         obstacles.getChildren().add(boxGroup);
     }
     
-    // do I need to take into account the player's rotation???
     private void updateCamera(){
-        camera.setTranslateY(cameraOffset * Math.sin(camera.getRotate() * Math.PI / 180));
-        camera.setTranslateZ(-cameraOffset * Math.cos(player.getRotate() * Math.PI / 180) * Math.cos(camera.getRotate() * Math.PI / 180));
+        cameraRotate.setRotate(player.getRotate());
+        camera.setTranslateX(player.getTranslateX() - cameraOffset * Math.sin(player.getRotate() * Math.PI / 180) * Math.cos(camera.getRotate() * Math.PI / 180));
+        camera.setTranslateY(player.getTranslateY() + cameraOffset * Math.sin(camera.getRotate() * Math.PI / 180));
+        camera.setTranslateZ(player.getTranslateZ() - cameraOffset * Math.cos(player.getRotate() * Math.PI / 180) * Math.cos(camera.getRotate() * Math.PI / 180));
     }
     
     private void registerKeys(Scene scene, final Node root){
@@ -164,9 +169,11 @@ public class Main extends Application{
                     break;
                 case UP:
                     player.moveForward();
+                    updateCamera();
                     break;
                 case DOWN:
                     player.moveBackward();
+                    updateCamera();
                     break;
                 case LEFT:
                     player.turnLeft();
