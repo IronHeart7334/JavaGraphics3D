@@ -7,7 +7,7 @@ import javafx.scene.transform.Rotate;
 
 import utilities.EasyGroup;
 
-public abstract class AbstractEntity extends EasyGroup{
+public abstract class AbstractEntity extends Box{
     
     private static PhongMaterial blue = new PhongMaterial(Color.BLUE);
     static{
@@ -21,7 +21,7 @@ public abstract class AbstractEntity extends EasyGroup{
     public static final int GRAVITY = 10; //placeholder
     
     public AbstractEntity(int x, int y, int z){
-        super();
+        super(100, 100, 100);
         translate(x, y, z);
         setVisible(true);
         speed = 10;
@@ -29,10 +29,16 @@ public abstract class AbstractEntity extends EasyGroup{
         size = 100;
         setRotationAxis(Rotate.Y_AXIS);
         
-        Box b = new Box(size, size, size);
-        b.setMaterial(blue);
+        //Box b = new Box(size, size, size);
+        setMaterial(blue);
         
-        getChildren().add(b);
+        //getChildren().add(b);
+    }
+    
+    public void translate(int x, int y, int z){
+        setTranslateX(x);
+        setTranslateY(y);
+        setTranslateZ(z);
     }
     
     public int getSize(){

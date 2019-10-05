@@ -51,12 +51,13 @@ public class Main extends Application{
         
         
         g.getChildren().add(obstacles);
+        g.getChildren().add(player);
         //obstacles.getChildren().add(new Crate(200, 200, 200, 100));
         
+        ((Group)player.getParent()).getChildren().add(camera);
+        //player.getChildren().add(camera);
         
-        player.getChildren().add(camera);
         
-        g.getChildren().add(player);
         
         Scene scene = new Scene(root, 500, 500, true);
         scene.setFill(Color.LIGHTBLUE);
@@ -126,9 +127,9 @@ public class Main extends Application{
     
     // do I need to take into account the player's rotation???
     private void updateCamera(){
-        //camera.setTranslateX(-cameraOffset * Math.sin(player.getRotate() * Math.PI / 180) * Math.cos(camera.getRotate() * Math.PI / 180));
+        camera.setTranslateX(-cameraOffset * Math.sin(player.getRotate() * Math.PI / 180) * Math.cos(camera.getRotate() * Math.PI / 180));
         camera.setTranslateY(cameraOffset * Math.sin(camera.getRotate() * Math.PI / 180));
-        camera.setTranslateZ(-cameraOffset * Math.cos(camera.getRotate() * Math.PI / 180));// * Math.cos(camera.getRotate() * Math.PI / 180));
+        camera.setTranslateZ(-cameraOffset * Math.cos(player.getRotate() * Math.PI / 180) * Math.cos(camera.getRotate() * Math.PI / 180));
     }
     
     private void registerKeys(Scene scene, final Node root){
@@ -181,10 +182,8 @@ public class Main extends Application{
                     player.jump();
                     break;
                 case Q:
-                    System.out.println(camera.getRotate());
-                    out.println("X: " +camera.getTranslateX());
-                    out.println("Z: " + camera.getTranslateZ());
-                    System.out.println(player.getRotate());
+                    System.out.println(String.format("Camera: %f, %f, %f (%f degrees)", camera.getTranslateX(), camera.getTranslateY(), camera.getTranslateZ(), camera.getRotate()));
+                    System.out.println(String.format("Player: %f, %f, %f (%f degrees)", player.getTranslateX(), player.getTranslateY(), player.getTranslateZ(), player.getRotate()));
                     break;
                 default:
                     player.displayData();
