@@ -76,6 +76,7 @@ public class Main extends Application{
                 if(!world.checkForCollisions(player)){
                     player.fall();
                 }
+                updateCamera();
             }
         }.start();
     }
@@ -144,44 +145,44 @@ public class Main extends Application{
                     if(cameraOffset <= player.getSize() * 3){
                         cameraOffset = player.getSize() * 3;
                     }
-                    updateCamera();
+                    //updateCamera();
                     break;
                 case MINUS:
                     cameraOffset += CAMERA_OFFSET_SPEED;
                     if(cameraOffset >= 1000){
                         cameraOffset = 1000;
                     }
-                    updateCamera();
+                    //updateCamera();
                     break;
                 case W:
                     camera.setRotate(camera.getRotate() - speed);
                     if(camera.getRotate() <= -90.0){
                         camera.setRotate(-90.0);
                     }
-                    updateCamera();
+                    //updateCamera();
                     break;
                 case S:
                     camera.setRotate(camera.getRotate() + speed);
                     if(camera.getRotate() >= 0.0){
                         camera.setRotate(0.0);
                     }
-                    updateCamera();
+                    //updateCamera();
                     break;
                 case UP:
                     player.moveForward();
-                    updateCamera();
+                    //updateCamera();
                     break;
                 case DOWN:
                     player.moveBackward();
-                    updateCamera();
+                    //updateCamera();
                     break;
                 case LEFT:
                     player.turnLeft();
-                    updateCamera();
+                    //updateCamera();
                     break;
                 case RIGHT:
                     player.turnRight();
-                    updateCamera();
+                    //updateCamera();
                     break;
                 case SPACE:
                     player.jump();
