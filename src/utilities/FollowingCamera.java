@@ -12,23 +12,27 @@ import javafx.scene.transform.Rotate;
  * @author Matt
  */
 public class FollowingCamera extends PerspectiveCamera{
-    private final Group rotateBase;
-    private final Group panGroup;
+    private final Group pan;
+    private final Group tilt;
     private Node target;
     private final ChangeListener<Number> listenX;
     private final ChangeListener<Number> listenY;
     private final ChangeListener<Number> listenZ;
-    private final ChangeListener<Number> updateRotate;
+    private final ChangeListener<Number> listenRotate;
+    
+    private double tiltSpeed;
+    private int zoomSpeed;
+    private int zoom;
     
     public FollowingCamera(){
         super(true);
-        rotateBase = new Group();
-        rotateBase.setRotationAxis(Rotate.Y_AXIS);
+        pan = new Group();
+        pan.setRotationAxis(Rotate.Y_AXIS);
         
-        panGroup = new Group();
-        panGroup.setRotationAxis(Rotate.X_AXIS);
-        rotateBase.getChildren().add(panGroup);
-        panGroup.getChildren().add(this);
+        tilt = new Group();
+        tilt.setRotationAxis(Rotate.X_AXIS);
+        pan.getChildren().add(tilt);
+        tilt.getChildren().add(this);
         
         listenX = new ChangeListener<Number>() {
             //@Override
@@ -66,22 +70,24 @@ public class FollowingCamera extends PerspectiveCamera{
             }
         };
         
-        updateRotate = new ChangeListener<Number>() {
+        listenRotate = new ChangeListener<Number>() {
             //@Override
             public void changed(Number num) {
-                rotateBase.setRotate(num.doubleValue());
+                updateRotate();
             }
 
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 changed(newValue);
-                updateX();
-                updateY();
-                updateZ();
+                updatePos();
             }
         };
         
         target = null;
+        
+        tiltSpeed = 10.0;
+        zoomSpeed = 10;
+        zoom = 400;
     }
     
     public void setTarget(Node n){
@@ -89,51 +95,76 @@ public class FollowingCamera extends PerspectiveCamera{
             n.translateXProperty().removeListener(listenX);
             n.translateYProperty().removeListener(listenY);
             n.translateZProperty().removeListener(listenZ);
-            n.rotateProperty().removeListener(updateRotate);
+            n.rotateProperty().removeListener(listenRotate);
         }
         target = n;
         n.translateXProperty().addListener(listenX);
         n.translateYProperty().addListener(listenY);
         n.translateZProperty().addListener(listenZ);
-        n.rotateProperty().addListener(updateRotate);
+        n.rotateProperty().addListener(listenRotate);
+        
+        updateRotate();
+        updatePos();
     }
     
     private void updateX(){
         if(target != null){
-            rotateBase.setTranslateX(target.getTranslateX() - 400 * Math.sin(rotateBase.getRotate() * Math.PI / 180) * Math.cos(panGroup.getRotate() * Math.PI / 180));
+            pan.setTranslateX(target.getTranslateX() - zoom * Math.sin(pan.getRotate() * Math.PI / 180) * Math.cos(tilt.getRotate() * Math.PI / 180));
         }
     }
     private void updateY(){
         if(target != null){
-            rotateBase.setTranslateY(target.getTranslateY() + 400 * Math.sin(panGroup.getRotate() * Math.PI / 180));
+            pan.setTranslateY(target.getTranslateY() + zoom * Math.sin(tilt.getRotate() * Math.PI / 180));
         }
     }
     private void updateZ(){
         if(target != null){
-            rotateBase.setTranslateZ(target.getTranslateZ() - 400 * Math.cos(rotateBase.getRotate() * Math.PI / 180) * Math.cos(panGroup.getRotate() * Math.PI / 180));
+            pan.setTranslateZ(target.getTranslateZ() - zoom * Math.cos(pan.getRotate() * Math.PI / 180) * Math.cos(tilt.getRotate() * Math.PI / 180));
         }
     }
-    
-    public void setX(double x){
-        rotateBase.setTranslateX(x);
+    private void updateRotate(){
+        if(target != null){
+            pan.setRotate(target.getRotate());
+        }
     }
-    public void setY(double y){
-        rotateBase.setTranslateY(y);
-    }
-    public void setZ(double z){
-        rotateBase.setTranslateZ(z);
+    private void updatePos(){
+        updateX();
+        updateY();
+        updateZ();
     }
     
     public Group getBase(){
-        return rotateBase;
+        return pan;
     }
     
-    public Group getPan(){
-        return panGroup;
+    public void tiltUp(){
+        tilt.setRotate(tilt.getRotate() - tiltSpeed);
+        if(tilt.getRotate() <= -90.0){
+            tilt.setRotate(-90.0);
+        }
+        updatePos();
     }
     
-    public FollowingCamera setBaseRotate(double degrees){
-        rotateBase.setRotate(degrees);
-        return this;
+    public void tiltDown(){
+        tilt.setRotate(tilt.getRotate() + tiltSpeed);
+        if(tilt.getRotate() >= 0.0){
+            tilt.setRotate(0.0);
+        }
+        updatePos();
+    }
+    
+    public void zoomIn(){
+        zoom -= zoomSpeed;
+        if(zoom <= 0){
+            zoom = 0;
+        }
+        updatePos();
+    }
+    public void zoomOut(){
+        zoom += zoomSpeed;
+        if(zoom >= getFarClip()){
+            zoom = (int) getFarClip();
+        }
+        updatePos();
     }
 }

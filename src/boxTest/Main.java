@@ -7,19 +7,8 @@ import javafx.scene.Scene;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.stage.Stage;
-import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
-
-import java.lang.Math;
-import static java.lang.System.out;
-import java.util.ArrayList;
 import javafx.animation.AnimationTimer;
-import javafx.event.Event;
-import javafx.event.EventType;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.transform.Rotate;
-
-import utilities.EasyGroup;
 import props.Crate;
 import utilities.FollowingCamera;
 import world.Cube;
@@ -32,9 +21,6 @@ public class Main extends Application{
     
     private AbstractEntity player;
     private Group obstacles;
-    
-    private int cameraOffset = 400;
-    private final int CAMERA_OFFSET_SPEED = 10;
     
     @Override
     public void start(Stage primaryStage) {
@@ -50,7 +36,7 @@ public class Main extends Application{
         
         g.getChildren().add(obstacles);
         g.getChildren().add(player);
-        //obstacles.getChildren().add(new Crate(200, 200, 200, 100));
+        obstacles.getChildren().add(new Crate(200, 800, 200, 100));
         
         g.getChildren().add(camera.getBase());
         camera.setTarget(player);
@@ -73,7 +59,6 @@ public class Main extends Application{
                 if(!world.checkForCollisions(player)){
                     player.fall();
                 }
-                updateCamera();
             }
         }.start();
     }
@@ -103,43 +88,22 @@ public class Main extends Application{
         camera = new FollowingCamera();
         camera.setNearClip(1);
         camera.setFarClip(Cube.CUBE_SIZE * 20);
-        updateCamera();
-    }
-    
-    private void updateCamera(){
-        //camera.setBaseRotate(player.getRotate());
-        //camera.setX(player.getTranslateX() - cameraOffset * Math.sin(player.getRotate() * Math.PI / 180) * Math.cos(camera.getPan().getRotate() * Math.PI / 180));
-        //camera.setY(player.getTranslateY() + cameraOffset * Math.sin(camera.getPan().getRotate() * Math.PI / 180));
-        //camera.setZ(player.getTranslateZ() - cameraOffset * Math.cos(player.getRotate() * Math.PI / 180) * Math.cos(camera.getPan().getRotate() * Math.PI / 180));
     }
     
     private void registerKeys(Scene scene, final Node root){
-        int speed = 5;
         scene.setOnKeyPressed((KeyEvent e) -> {
             switch(e.getCode()){
                 case EQUALS:
-                    cameraOffset -= CAMERA_OFFSET_SPEED;
-                    if(cameraOffset <= player.getSize() * 3){
-                        cameraOffset = player.getSize() * 3;
-                    }
+                    camera.zoomIn();
                     break;
                 case MINUS:
-                    cameraOffset += CAMERA_OFFSET_SPEED;
-                    if(cameraOffset >= 1000){
-                        cameraOffset = 1000;
-                    }
+                    camera.zoomOut();
                     break;
                 case W:
-                    camera.getPan().setRotate(camera.getPan().getRotate() - speed);
-                    if(camera.getPan().getRotate() <= -90.0){
-                        camera.getPan().setRotate(-90.0);
-                    }
+                    camera.tiltUp();
                     break;
                 case S:
-                    camera.getPan().setRotate(camera.getPan().getRotate() + speed);
-                    if(camera.getPan().getRotate() >= 0.0){
-                        camera.getPan().setRotate(0.0);
-                    }
+                    camera.tiltDown();
                     break;
                 case UP:
                     player.moveForward();
@@ -155,10 +119,6 @@ public class Main extends Application{
                     break;
                 case SPACE:
                     player.jump();
-                    break;
-                case Q:
-                    System.out.println(String.format("Camera: %f, %f, %f (%f degrees)", camera.getTranslateX(), camera.getTranslateY(), camera.getTranslateZ(), camera.getRotate()));
-                    System.out.println(String.format("Player: %f, %f, %f (%f degrees)", player.getTranslateX(), player.getTranslateY(), player.getTranslateZ(), player.getRotate()));
                     break;
                 default:
                     player.displayData();
