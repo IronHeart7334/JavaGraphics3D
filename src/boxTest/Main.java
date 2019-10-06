@@ -21,15 +21,14 @@ import javafx.scene.transform.Rotate;
 
 import utilities.EasyGroup;
 import props.Crate;
+import utilities.FollowingCamera;
 import world.Cube;
 import world.World;
 
 public class Main extends Application{
     private Group root;
     private World world;
-    private Group cameraRotate;
-    private PerspectiveCamera camera;
-    private EasyGroup boxGroup;
+    private FollowingCamera camera;
     
     private AbstractEntity player;
     private Group obstacles;
@@ -48,15 +47,13 @@ public class Main extends Application{
         g.getChildren().add(buildAxis(Cube.CUBE_SIZE * 10));
         
         buildCamera();
-        //buildBox();
-        
         
         g.getChildren().add(obstacles);
         g.getChildren().add(player);
         //obstacles.getChildren().add(new Crate(200, 200, 200, 100));
         
-        g.getChildren().add(cameraRotate);
-        
+        g.getChildren().add(camera.getBase());
+        camera.setTarget(player);
         
         
         Scene scene = new Scene(root, 500, 500, true);
@@ -103,37 +100,17 @@ public class Main extends Application{
     }
     
     private void buildCamera(){
-        cameraRotate = new Group();
-        cameraRotate.setRotationAxis(Rotate.Y_AXIS);
-        camera = new PerspectiveCamera(true);
+        camera = new FollowingCamera();
         camera.setNearClip(1);
         camera.setFarClip(Cube.CUBE_SIZE * 20);
-        camera.setRotationAxis(Rotate.X_AXIS);
-        cameraRotate.getChildren().add(camera);
         updateCamera();
     }
     
-    //remove this
-    private void buildBox(){
-        boxGroup = new EasyGroup();
-        PhongMaterial mat = new PhongMaterial();
-        mat.setDiffuseColor(Color.BROWN);
-        mat.setSpecularColor(Color.GOLD);
-        
-        Box b = new Box(100, 100, 100);
-        b.setMaterial(mat);
-        
-        boxGroup.translate(200, 300, 200);
-        boxGroup.getChildren().add(b);
-        boxGroup.setVisible(true);
-        obstacles.getChildren().add(boxGroup);
-    }
-    
     private void updateCamera(){
-        cameraRotate.setRotate(player.getRotate());
-        camera.setTranslateX(player.getTranslateX() - cameraOffset * Math.sin(player.getRotate() * Math.PI / 180) * Math.cos(camera.getRotate() * Math.PI / 180));
-        camera.setTranslateY(player.getTranslateY() + cameraOffset * Math.sin(camera.getRotate() * Math.PI / 180));
-        camera.setTranslateZ(player.getTranslateZ() - cameraOffset * Math.cos(player.getRotate() * Math.PI / 180) * Math.cos(camera.getRotate() * Math.PI / 180));
+        //camera.setBaseRotate(player.getRotate());
+        //camera.setX(player.getTranslateX() - cameraOffset * Math.sin(player.getRotate() * Math.PI / 180) * Math.cos(camera.getPan().getRotate() * Math.PI / 180));
+        //camera.setY(player.getTranslateY() + cameraOffset * Math.sin(camera.getPan().getRotate() * Math.PI / 180));
+        //camera.setZ(player.getTranslateZ() - cameraOffset * Math.cos(player.getRotate() * Math.PI / 180) * Math.cos(camera.getPan().getRotate() * Math.PI / 180));
     }
     
     private void registerKeys(Scene scene, final Node root){
@@ -145,44 +122,36 @@ public class Main extends Application{
                     if(cameraOffset <= player.getSize() * 3){
                         cameraOffset = player.getSize() * 3;
                     }
-                    //updateCamera();
                     break;
                 case MINUS:
                     cameraOffset += CAMERA_OFFSET_SPEED;
                     if(cameraOffset >= 1000){
                         cameraOffset = 1000;
                     }
-                    //updateCamera();
                     break;
                 case W:
-                    camera.setRotate(camera.getRotate() - speed);
-                    if(camera.getRotate() <= -90.0){
-                        camera.setRotate(-90.0);
+                    camera.getPan().setRotate(camera.getPan().getRotate() - speed);
+                    if(camera.getPan().getRotate() <= -90.0){
+                        camera.getPan().setRotate(-90.0);
                     }
-                    //updateCamera();
                     break;
                 case S:
-                    camera.setRotate(camera.getRotate() + speed);
-                    if(camera.getRotate() >= 0.0){
-                        camera.setRotate(0.0);
+                    camera.getPan().setRotate(camera.getPan().getRotate() + speed);
+                    if(camera.getPan().getRotate() >= 0.0){
+                        camera.getPan().setRotate(0.0);
                     }
-                    //updateCamera();
                     break;
                 case UP:
                     player.moveForward();
-                    //updateCamera();
                     break;
                 case DOWN:
                     player.moveBackward();
-                    //updateCamera();
                     break;
                 case LEFT:
                     player.turnLeft();
-                    //updateCamera();
                     break;
                 case RIGHT:
                     player.turnRight();
-                    //updateCamera();
                     break;
                 case SPACE:
                     player.jump();
