@@ -11,6 +11,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.animation.AnimationTimer;
 import props.Crate;
 import props.Function;
+import props.Function3D;
 import utilities.FollowingCamera;
 import world.Cube;
 import static world.Cube.CUBE_SIZE;
@@ -24,6 +25,9 @@ public class Main extends Application{
     private AbstractEntity player;
     private Group obstacles;
     
+    private static final boolean ALLOW_FLY = true;
+    
+    //hold F to fall, or set ALLOW_FLY to false
     @Override
     public void start(Stage primaryStage) {
         root = new Group();
@@ -53,6 +57,17 @@ public class Main extends Application{
         integral.setTranslateZ(150);
         g.getChildren().add(integral);
         
+        Function3D f3 = new Function3D() {
+            @Override
+            public double f(double x, double z) {
+                return CUBE_SIZE * Math.sin(x * 2 * Math.PI / (CUBE_SIZE * 3)) * Math.cos(z * 2 * Math.PI / (CUBE_SIZE * 3));
+            }
+        };
+        Group fg = f3.getShape(0, CUBE_SIZE * 3, 0, CUBE_SIZE * 3, 10, 1);
+        fg.setTranslateZ(300);
+        fg.setTranslateY(600);
+        g.getChildren().add(fg);
+        
         g.getChildren().add(camera.getBase());
         camera.setTarget(player);
         
@@ -71,7 +86,7 @@ public class Main extends Application{
         new AnimationTimer(){
             @Override
             public void handle(long now) {
-                if(!world.checkForCollisions(player)){
+                if(!ALLOW_FLY && !world.checkForCollisions(player)){
                     player.fall();
                 }
             }
@@ -134,6 +149,11 @@ public class Main extends Application{
                     break;
                 case SPACE:
                     player.jump();
+                    break;
+                case F:
+                    if(ALLOW_FLY){
+                        player.fall();
+                    }
                     break;
                 default:
                     player.displayData();
