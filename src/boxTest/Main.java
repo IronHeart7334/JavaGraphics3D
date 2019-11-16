@@ -10,8 +10,10 @@ import javafx.stage.Stage;
 import javafx.scene.input.KeyEvent;
 import javafx.animation.AnimationTimer;
 import props.Crate;
+import props.Function;
 import utilities.FollowingCamera;
 import world.Cube;
+import static world.Cube.CUBE_SIZE;
 import world.World;
 
 public class Main extends Application{
@@ -37,6 +39,19 @@ public class Main extends Application{
         g.getChildren().add(obstacles);
         g.getChildren().add(player);
         obstacles.getChildren().add(new Crate(200, 800, 200, 100));
+        
+        Function sin = new Function(){
+            @Override
+            public double f(double x) {
+                return CUBE_SIZE * Math.sin(x * 2 * Math.PI / (CUBE_SIZE * 5));
+            }
+        };
+        
+        Group integral = sin.getIntegralShellMethod(0, CUBE_SIZE * 5, Math.PI / 4);
+        integral.setTranslateX(50);
+        integral.setTranslateY(50);
+        integral.setTranslateZ(50);
+        g.getChildren().add(integral);
         
         g.getChildren().add(camera.getBase());
         camera.setTarget(player);
