@@ -40,17 +40,17 @@ public class Main extends Application{
         g.getChildren().add(player);
         obstacles.getChildren().add(new Crate(200, 800, 200, 100));
         
-        Function sin = new Function(){
+        Function cos = new Function(){
             @Override
             public double f(double x) {
-                return CUBE_SIZE * Math.sin(x * 2 * Math.PI / (CUBE_SIZE * 5));
+                return CUBE_SIZE * Math.cos(x * 2 * Math.PI / (CUBE_SIZE * 5));
             }
         };
         
-        Group integral = sin.getIntegralShellMethod(0, CUBE_SIZE * 5, Math.PI / 4);
-        integral.setTranslateX(50);
-        integral.setTranslateY(50);
-        integral.setTranslateZ(50);
+        Group integral = cos.getIntegralShellMethod(0, CUBE_SIZE * 5, Math.PI / 4);
+        integral.setTranslateX(150);
+        integral.setTranslateY(650);
+        integral.setTranslateZ(150);
         g.getChildren().add(integral);
         
         g.getChildren().add(camera.getBase());
