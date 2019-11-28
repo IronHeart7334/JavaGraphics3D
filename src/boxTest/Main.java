@@ -12,6 +12,7 @@ import javafx.animation.AnimationTimer;
 import props.Crate;
 import props.Function;
 import props.Function3D;
+import props.Vector3;
 import utilities.FollowingCamera;
 import world.Cube;
 import static world.Cube.CUBE_SIZE;
@@ -24,6 +25,8 @@ public class Main extends Application{
     
     private AbstractEntity player;
     private Group obstacles;
+    
+    Vector3 clock;//temp
     
     private static final boolean ALLOW_FLY = true;
     
@@ -69,6 +72,9 @@ public class Main extends Application{
         g.getChildren().add(fg);
         
         g.getChildren().add(camera.getBase());
+        
+        clock = new Vector3(50, 700, 50, 100, 0, 0);
+        g.getChildren().add(clock.getBase());
         camera.setTarget(player);
         
         
@@ -154,6 +160,12 @@ public class Main extends Application{
                     if(ALLOW_FLY){
                         player.fall();
                     }
+                    break;
+                case T:
+                    clock.setRotates(clock.getTheta() + 1, clock.getPhi());
+                    break;
+                case P:
+                    clock.setRotates(clock.getTheta(), clock.getPhi() + 1);
                     break;
                 default:
                     player.displayData();
